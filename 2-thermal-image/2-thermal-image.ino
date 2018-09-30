@@ -63,8 +63,8 @@ void setup() {
   // };
   Thermal.print(im);
 
-  Thermal.write(0b00001010);  // [LF] line feed
-  Thermal.write(0b00001010);  // [LF] line feed
+  Thermal.print(0b00001010);  // [LF] line feed
+  Thermal.print(0b00001010);  // [LF] line feed
 }
 
 void loop() {}
