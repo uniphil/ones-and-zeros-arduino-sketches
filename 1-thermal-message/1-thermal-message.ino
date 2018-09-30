@@ -16,11 +16,9 @@ void setup() {
     0b01001100,  // L
     0b01001100,  // L
     0b01001111,  // O
-    0b00001010,  // [lf]
-    0b00001010,  // [lf]
   };
 
-  Thermal.print(message);
+  Thermal.println(message);
 }
 
 void loop() {}
