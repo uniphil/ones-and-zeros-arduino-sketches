@@ -27,6 +27,13 @@
 
 SoftwareSerial Thermal(10, 9);  // Soft RX from printer on D2, soft TX out to printer on D3
 
+#define BAUD 9600
+#define DOTS 64
+#define HEAT_TIME 127
+#define HEAT_INTERVAL 64
+#define PRINT_DENSITY 0b000
+#define PRINT_TIMEOUT 0b00000
+
 #define EMPH 0b00001000
 #define TALL 0b00010000
 #define WIDE 0b00100000
@@ -34,6 +41,9 @@ SoftwareSerial Thermal(10, 9);  // Soft RX from printer on D2, soft TX out to pr
 #define UL   0b10000000
 
 void setup() {
+  pinMode(8, OUTPUT);
+  digitalWrite(8, LOW);
+  
   // don't do anything until a jumper conntcts pins 2-3
   pinMode(2, OUTPUT);
   pinMode(3, INPUT);
@@ -42,19 +52,21 @@ void setup() {
   while(digitalRead(3));  // wait for it to go low (jumper connect to ground)
 
 
-  Thermal.begin(19200);  // Setup soft serial for ThermalPrinter control
+  Thermal.begin(BAUD);  // Setup soft serial for ThermalPrinter control
+
+  delay(1000);
 
   //Modify the print speed and heat
   Thermal.write(27);
   Thermal.write(55);
-  Thermal.write(7);   // default 64 dots = 8*('7'+1)
-  Thermal.write(255); // heat time, default 80 or 800us
-  Thermal.write(255); // heat interval, default 2 or 20us
+  Thermal.write(DOTS);   // default 64 = 8*('7'+1)
+  Thermal.write(HEAT_TIME); // default 80 or 800us
+  Thermal.write(HEAT_INTERVAL); // default 2 or 20us
 
   //Modify the print density and timeout
   Thermal.write(18);
   Thermal.write(35);
-  Thermal.write((7<<5) | 10); //Combination of printDensity and printBreakTime
+  Thermal.write((byte)((PRINT_DENSITY<<5) | PRINT_TIMEOUT));
   delay(100);
 
   // set up text
@@ -92,7 +104,7 @@ void setup() {
   Thermal.write('B');
   Thermal.write(1);
   // title!
-  Thermal.println("Social Rules\n\n");  
+  Thermal.println(" Social Rules \n\n");  
   // left
   Thermal.write(27);
   Thermal.write('a');
@@ -131,7 +143,7 @@ void setup() {
   Thermal.write('B');
   Thermal.write(1);
   // title!
-  Thermal.println("How to Count in Binary\n\n");  
+  Thermal.println(" How to Count in Binary \n\n");  
   // left
   Thermal.write(27);
   Thermal.write('a');
@@ -194,7 +206,7 @@ void setup() {
   Thermal.write('B');
   Thermal.write(1);
   // title!
-  Thermal.println("Arduino\n\n");  
+  Thermal.println(" Arduino \n\n");  
   // left
   Thermal.write(27);
   Thermal.write('a');
@@ -229,7 +241,7 @@ void setup() {
   Thermal.write('B');
   Thermal.write(1);
   // title!
-  Thermal.println("ASCII\n\n");  
+  Thermal.println(" ASCII \n\n");  
   // left
   Thermal.write(27);
   Thermal.write('a');
@@ -264,7 +276,7 @@ void setup() {
   Thermal.write('B');
   Thermal.write(1);
   // title!
-  Thermal.println("Bits and Bites\n\n");  
+  Thermal.println(" Bits and Bites \n\n");  
   // left
   Thermal.write(27);
   Thermal.write('a');
@@ -332,7 +344,7 @@ void setup() {
   Thermal.write('B');
   Thermal.write(1);
   // title!
-  Thermal.println("Bits and BYTES\n\n");  
+  Thermal.println(" Bits and BYTES \n\n");  
   // left
   Thermal.write(27);
   Thermal.write('a');
@@ -370,7 +382,7 @@ void setup() {
   Thermal.write('B');
   Thermal.write(1);
   // title!
-  Thermal.println("Binary Solo, Decoded\n\n");  
+  Thermal.println(" Binary Solo, Decoded \n\n");  
   // left
   Thermal.write(27);
   Thermal.write('a');
@@ -389,7 +401,7 @@ void setup() {
   Thermal.println("00000010 STX: start transmission");
   Thermal.println("00000110 ACK: acknowledge");
   Thermal.println("00000111 BEL: bell!");
-  Thermal.println("00001111 SI:  change instrument!");
+  Thermal.println("00001111  SI: change instrument!");
   
 
   Thermal.print("\n\n\n");
@@ -407,7 +419,7 @@ void setup() {
   Thermal.write('B');
   Thermal.write(1);
   // title!
-  Thermal.println("ASCII Cheat Sheet\n\n");  
+  Thermal.println(" ASCII Cheat Sheet \n\n");  
   // left
   Thermal.write(27);
   Thermal.write('a');
@@ -450,7 +462,7 @@ void setup() {
   Thermal.println(F(" 13   0x0D   0000 1101   [CR]"));
   Thermal.println(F(" 14   0x0E   0000 1110   [SO]"));
   Thermal.println(F(" 15   0x0F   0000 1111   [SI]"));
-  delay(4000);
+  delay(3000);
   Thermal.println(F(" 16   0x10   0001 0000   [DLE]"));
   Thermal.println(F(" 17   0x11   0001 0001   [DC1]"));
   Thermal.println(F(" 18   0x12   0001 0010   [DC2]"));
@@ -467,7 +479,7 @@ void setup() {
   Thermal.println(F(" 29   0x1D   0001 1101   [GS]"));
   Thermal.println(F(" 30   0x1E   0001 1110   [RS]"));
   Thermal.println(F(" 31   0x1F   0001 1111   [US]"));
-  delay(4000);
+  delay(3000);
   Thermal.println(F(" 32   0x20   0010 0000   ' '"));
   Thermal.println(F(" 33   0x21   0010 0001   !"));
   Thermal.println(F(" 34   0x22   0010 0010   \""));
@@ -484,7 +496,7 @@ void setup() {
   Thermal.println(F(" 45   0x2D   0010 1101   -"));
   Thermal.println(F(" 46   0x2E   0010 1110   ."));
   Thermal.println(F(" 47   0x2F   0010 1111   /"));
-  delay(4000);
+  delay(3000);
   Thermal.println(F(" 48   0x30   0011 0000   0"));
   Thermal.println(F(" 49   0x31   0011 0001   1"));
   Thermal.println(F(" 50   0x32   0011 0010   2"));
@@ -501,7 +513,7 @@ void setup() {
   Thermal.println(F(" 61   0x3D   0011 1101   ="));
   Thermal.println(F(" 62   0x3E   0011 1110   >"));
   Thermal.println(F(" 63   0x3F   0011 1111   ?"));
-  delay(4000);
+  delay(3000);
   Thermal.println(F(" 64   0x40   0100 0000   @"));
   Thermal.println(F(" 65   0x41   0100 0001   A"));
   Thermal.println(F(" 66   0x42   0100 0010   B"));
@@ -518,7 +530,7 @@ void setup() {
   Thermal.println(F(" 77   0x4D   0100 1101   M"));
   Thermal.println(F(" 78   0x4E   0100 1110   N"));
   Thermal.println(F(" 79   0x4F   0100 1111   O"));
-  delay(4000);
+  delay(3000);
   Thermal.println(F(" 80   0x50   0101 0000   P"));
   Thermal.println(F(" 81   0x51   0101 0001   Q"));
   Thermal.println(F(" 82   0x52   0101 0010   R"));
@@ -535,7 +547,7 @@ void setup() {
   Thermal.println(F(" 93   0x5D   0101 1101   ]"));
   Thermal.println(F(" 94   0x5E   0101 1110   ^"));
   Thermal.println(F(" 95   0x5F   0101 1111   _"));
-  delay(4000);
+  delay(3000);
   Thermal.println(F(" 96   0x60   0110 0000   `"));
   Thermal.println(F(" 97   0x61   0110 0001   a"));
   Thermal.println(F(" 98   0x62   0110 0010   b"));
@@ -552,7 +564,7 @@ void setup() {
   Thermal.println(F("109   0x6D   0110 1101   m"));
   Thermal.println(F("110   0x6E   0110 1110   n"));
   Thermal.println(F("111   0x6F   0110 1111   o"));
-  delay(4000);
+  delay(3000);
   Thermal.println(F("112   0x70   0111 0000   p"));
   Thermal.println(F("113   0x71   0111 0001   q"));
   Thermal.println(F("114   0x72   0111 0010   r"));
@@ -570,7 +582,7 @@ void setup() {
   Thermal.println(F("126   0x7E   0111 1110   ~"));
   Thermal.println(F("127   0x7F   0111 1111   [DEL]"));
   Thermal.println("\n\n\n");
-  delay(4000);
+  delay(3000);
 
 }
 
