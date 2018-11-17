@@ -5,24 +5,12 @@ SoftwareSerial Thermal(10, 9);  // Software RX, TX
 void setup() {
   Thermal.begin(19200);  // Setup soft serial for ThermalPrinter control
 
-  // set print speed and heat
-  Thermal.write(27);
-  Thermal.write(55);
-  Thermal.write(7);   // default 64 dots = 8*('7'+1)
-  Thermal.write(255); // heat time, default 80 or 800us
-  Thermal.write(255); // heat interval, default 2 or 20us
-
-  // set print density and timeout
-  Thermal.write(18);
-  Thermal.write(35);
-  Thermal.write((15<<4) | 15); //Combination of printDensity and printBreakTime
-
-
   // tell the printer we're going to send an image
   Thermal.write(0b00010010);  // [DC2]
   Thermal.write(0b00101010);  // '*'
   Thermal.write(0b00010000);  // 16, the height
   Thermal.write(0b00000010);  // 2, the width (in bytes, x8 pixels)
+
   // :/
   char im[] = {
     0b00000111, 0b11100000,
@@ -42,7 +30,8 @@ void setup() {
     0b00011000, 0b00011000,
     0b00000111, 0b11100000,
   };
-  // blank 16x16
+
+  // // here is a blank 16x16 to start with:
   // char im[] = {
   //   0b00000000, 0b00000000,
   //   0b00000000, 0b00000000,
@@ -61,8 +50,15 @@ void setup() {
   //   0b00000000, 0b00000000,
   //   0b00000000, 0b00000000,
   // };
-  Thermal.print(im);
 
+
+  // send all the bytes in the image, one by one
+  // the "2 * 16" on the next line is width * height -- it must match the image commands above!
+  for (int i = 0; i < 2 * 16; i++) {
+    Thermal.write(im[i]);
+  }
+
+  // feed two lines (otherwise the image is still inside the printer)
   Thermal.print(0b00001010);  // [LF] line feed
   Thermal.print(0b00001010);  // [LF] line feed
 }
